@@ -1,10 +1,9 @@
-
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Zowi Login & Registration</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -33,7 +32,119 @@
       margin: 5px 0 15px;
       border: 1px solid #ccc;
       border-radius: 4px;
-      font-size: 14px;
+      box-sizing: border-box;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      background: #28a745;
+      border: none;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+    button:hover {
+      background: #218838;
+    }
+    .toggle-btn {
+      background: #007bff;
+      margin-top: 10px;
+    }
+    .toggle-btn:hover {
+      background: #0069d9;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h2 id="form-title">Login</h2>
+  <input type="text" id="phone" placeholder="Phone Number" required />
+  <input type="password" id="password" placeholder="Password" required />
+  <button id="action-btn">Login</button>
+  <button class="toggle-btn" onclick="toggleForm()">Switch to Register</button>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
+  import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
+  import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAiivzpIEsKhfOe2EMY3m3OxBmXjdAL8pQ",
+    authDomain: "zowi-9f8e8.firebaseapp.com",
+    databaseURL: "https://zowi-9f8e8-default-rtdb.firebaseio.com",
+    projectId: "zowi-9f8e8",
+    storageBucket: "zowi-9f8e8.firebasestorage.app",
+    messagingSenderId: "581091477130",
+    appId: "1:581091477130:web:6f465c9ce5a8eba406cf73",
+    measurementId: "G-Z5B6MMXRPB"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const database = getDatabase(app);
+
+  let isLogin = true;
+
+  function toggleForm() {
+    isLogin = !isLogin;
+    document.getElementById("form-title").innerText = isLogin ? "Login" : "Register";
+    document.getElementById("action-btn").innerText = isLogin ? "Login" : "Register";
+  }
+  window.toggleForm = toggleForm;
+
+  document.getElementById("action-btn").addEventListener("click", () => {
+    const phone = document.getElementById("phone").value.trim();
+    const password = document.getElementById("password").value;
+
+    if (!phone || !password) {
+      alert("Please fill in all fields.");
+      return;
+    }
+
+    const email = phone + "@zowi.com";
+
+    if (isLogin) {
+      signInWithEmailAndPassword(auth, email, password)
+        .then(userCredential => {
+          const uid = userCredential.user.uid;
+          const approvedRef = ref(database, 'users/' + uid + '/approved');
+          get(approvedRef).then(snapshot => {
+            const isApproved = snapshot.exists() && snapshot.val() === true;
+            if (isApproved || phone === "0968623529") {
+              window.location.href = "https://rohobotya.github.io/www.zowipromotion.com/";
+            } else {
+              alert("Your account is not approved yet. Please wait for admin approval.");
+              signOut(auth);
+            }
+          });
+        })
+        .catch(error => {
+          alert("Login Error: " + error.message);
+        });
+    } else {
+      createUserWithEmailAndPassword(auth, email, password)
+        .then(userCredential => {
+          const uid = userCredential.user.uid;
+          const approved = (phone === "0968623529");
+          set(ref(database, "users/" + uid), {
+            phone: phone,
+            approved: approved
+          }).then(() => {
+            alert(approved ? "Admin account created and approved!" : "Registration successful! Wait for admin approval.");
+          });
+        })
+        .catch(error => {
+          alert("Registration Error: " + error.message);
+        });
+    }
+  });
+</script>
+
+</body>
+</html>
     }
     button {
       width: 100%;
