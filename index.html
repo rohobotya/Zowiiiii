@@ -1,0 +1,146 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Zowi Login & Registration</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .container {
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 400px;
+    }
+    h2 {
+      text-align: center;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      margin: 5px 0 15px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      background: #28a745;
+      border: none;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+    button:hover {
+      background: #218838;
+    }
+    .toggle-btn {
+      background: #007bff;
+      margin-top: 10px;
+    }
+    .toggle-btn:hover {
+      background: #0069d9;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h2 id="form-title">Login</h2>
+  <input type="text" id="phone" placeholder="Phone Number" required>
+  <input type="password" id="password" placeholder="Password" required>
+  <button id="action-btn">Login</button>
+  <button class="toggle-btn" onclick="toggleForm()">Switch to Register</button>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database.js"></script>
+<script>
+  // Firebase config
+  const firebaseConfig = {
+    apiKey: "AIzaSyAiivzpIEsKhfOe2EMY3m3OxBmXjdAL8pQ",
+    authDomain: "zowi-9f8e8.firebaseapp.com",
+    databaseURL: "https://zowi-9f8e8-default-rtdb.firebaseio.com",
+    projectId: "zowi-9f8e8",
+    storageBucket: "zowi-9f8e8.firebasestorage.app",
+    messagingSenderId: "581091477130",
+    appId: "1:581091477130:web:6f465c9ce5a8eba406cf73",
+    measurementId: "G-Z5B6MMXRPB"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const database = firebase.database();
+
+  let isLogin = true;
+
+  function toggleForm() {
+    isLogin = !isLogin;
+    document.getElementById("form-title").innerText = isLogin ? "Login" : "Register";
+    document.getElementById("action-btn").innerText = isLogin ? "Login" : "Register";
+  }
+
+  document.getElementById("action-btn").addEventListener("click", function() {
+    const phone = document.getElementById("phone").value.trim();
+    const password = document.getElementById("password").value;
+
+    if (!phone || !password) {
+      alert("Please fill in all fields.");
+      return;
+    }
+
+    const email = phone + "@zowi.com"; // Treat phone as email
+
+    if (isLogin) {
+      // Login logic
+      auth.signInWithEmailAndPassword(email, password)
+        .then(userCredential => {
+          const uid = userCredential.user.uid;
+          database.ref("users/" + uid + "/approved").once("value").then(snapshot => {
+            if (snapshot.val() === true || phone === "0968623529") {
+              window.location.href = "https://rohobotya.github.io/www.zowipromotion.com/";
+            } else {
+              alert("Your account is not approved yet. Please wait for admin approval.");
+              auth.signOut();
+            }
+          });
+        })
+        .catch(error => {
+          alert("Login Error: " + error.message);
+        });
+    } else {
+      // Registration logic
+      auth.createUserWithEmailAndPassword(email, password)
+        .then(userCredential => {
+          const uid = userCredential.user.uid;
+          const approved = (phone === "0968623529"); // Auto approve admin
+          database.ref("users/" + uid).set({
+            phone: phone,
+            approved: approved
+          }).then(() => {
+            alert(approved ? "Admin account created and approved!" : "Registration successful! Wait for admin approval.");
+          });
+        })
+        .catch(error => {
+          alert("Registration Error: " + error.message);
+        });
+    }
+  });
+</script>
+
+</body>
+</html>
