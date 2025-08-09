@@ -72,26 +72,28 @@
 </div>
 
 <!-- Firebase Compat Libraries for v9 -->
-<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
 
-<script>
-  // Firebase config
-  const firebaseConfig = {
-    apiKey: "AIzaSyAiivzpIEsKhfOe2EMY3m3OxBmXjdAL8pQ",
-    authDomain: "zowi-9f8e8.firebaseapp.com",
-    databaseURL: "https://zowi-9f8e8-default-rtdb.firebaseio.com",
-    projectId: "zowi-9f8e8",
-    storageBucket: "zowi-9f8e8.firebasestorage.app",
-    messagingSenderId: "581091477130",
-    appId: "1:581091477130:web:6f465c9ce5a8eba406cf73",
-    measurementId: "G-Z5B6MMXRPB"
-  };
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyAiivzpIEsKhfOe2EMY3m3OxBmXjdAL8pQ",
+  authDomain: "zowi-9f8e8.firebaseapp.com",
+  databaseURL: "https://zowi-9f8e8-default-rtdb.firebaseio.com",
+  projectId: "zowi-9f8e8",
+  storageBucket: "zowi-9f8e8.firebasestorage.app",
+  messagingSenderId: "581091477130",
+  appId: "1:581091477130:web:14a6ac2df78d3d7006cf73",
+  measurementId: "G-EM9749GTMS"
+};
 
-  firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
-  const database = firebase.database();
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
 
   let isLogin = true;
 
